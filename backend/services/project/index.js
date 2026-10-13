@@ -14,7 +14,7 @@ app.get("/",(req,res)=>{
     return res.json({message:"Hello from project"})
 })
 
-app.listen(port,()=>{
+app.listen(port,"0.0.0.0",()=>{
     connectDB();
     console.log(`Project services started at port : ${port}`)
 })

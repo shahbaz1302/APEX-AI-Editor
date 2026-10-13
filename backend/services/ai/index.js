@@ -13,7 +13,7 @@ app.get("/",(req,res)=>{
     return res.json({message:"Hello from ai service"})
 })
 
-app.listen(port,()=>{
+app.listen(port,"0.0.0.0",()=>{
     connectDB();
     console.log(`AI services started at port : ${port}`)
 })

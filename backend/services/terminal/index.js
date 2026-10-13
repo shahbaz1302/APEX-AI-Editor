@@ -202,7 +202,7 @@ app.get("/health", (req, res) => {
   return res.json({ success: true, service: "terminal" });
 });
 
-server.listen(port, () => {
+server.listen(port,"0.0.0.0", () => {
   connectDB();
   console.log(`Terminal services started at port : ${port}`);
 });
