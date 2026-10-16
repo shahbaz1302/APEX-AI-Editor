@@ -46,7 +46,9 @@ const Terminal = ({ projectId, userId }) => {
 
     fitTerminal();
 
-    const terminal_url = import.meta.env.VITE_TERMINAL_SERVICE_URL;
+    const terminal_url =
+      import.meta.env.VITE_TERMINAL_SERVICE_URL ||
+      import.meta.env.VITE_SERVER_URL;
 
     if (!terminal_url) {
       terminal.write(
@@ -58,6 +60,11 @@ const Terminal = ({ projectId, userId }) => {
     const socket = io(terminal_url, {
       transports: ["websocket"],
       withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+      timeout: 20000,
     });
 
     socket.on("connect", () => {

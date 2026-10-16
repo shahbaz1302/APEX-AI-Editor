@@ -36,6 +36,7 @@ app.get("/", (req, res) => {
 const socketProxy = httpProxy.createProxyServer({
   target: process.env.TERMINAL_SERVICE,
   ws: true,
+  changeOrigin: true,
 });
 
 app.use("/socket.io", (req, res) => {

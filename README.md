@@ -104,6 +104,14 @@ The AI assistant inside `backend/services/ai` uses **LangGraph** stateful graphs
 
 Apex is engineered for scalable deployment on **Amazon Web Services (AWS)**.
 
+### Render service URLs
+
+For deployments where services may sleep between requests, configure service-to-service URLs with Render's private service URLs:
+
+- Set `FILE_SERVICE_URL` on the project service to a URL that the project service can reach for the files service. The project service also accepts the legacy `FILES_SERVICE_URL` name.
+- Set `TERMINAL_SERVICE` on the gateway to the terminal service URL.
+- Set `VITE_SERVER_URL` on the frontend to the public gateway URL. `VITE_TERMINAL_SERVICE_URL` may also point to that gateway; if omitted, the terminal uses `VITE_SERVER_URL` and the gateway proxies its WebSocket connection.
+
 ```
                          ┌─────────────────────────────────────────┐
                          │               Vercel                    │

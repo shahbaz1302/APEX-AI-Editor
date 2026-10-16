@@ -1,6 +1,27 @@
 import redis from "../../../shared/redis/redis.js"
 import projectModel from "../models/project.model.js"
 
+const FILES_SERVICE_RETRY_DELAYS = [1000, 2000, 4000]
+
+const fetchFilesService = async (url, options) => {
+    for (let attempt = 0; ; attempt += 1) {
+        try {
+            const response = await fetch(url, options)
+            const shouldRetry = [502, 503, 504].includes(response.status)
+            if (!shouldRetry || attempt === FILES_SERVICE_RETRY_DELAYS.length) {
+                return response
+            }
+            await response.body?.cancel()
+        } catch (error) {
+            if (!(error instanceof TypeError) || attempt === FILES_SERVICE_RETRY_DELAYS.length) {
+                throw error
+            }
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, FILES_SERVICE_RETRY_DELAYS[attempt]))
+    }
+}
+
 export const createProject=async(req,res)=>{
     try {
         const userId=req.headers["x-user-id"]
@@ -122,11 +143,17 @@ export const deleteProject=async(req,res)=>{
             return res.status(404).json({message:"Project not found"})
         }
 
-        const filesServiceUrl=process.env.FILES_SERVICE_URL || "http://localhost:8003"
-        const filesResponse=await fetch(
-            `${filesServiceUrl.replace(/\/+$/,"")}/project/${encodeURIComponent(id)}`,
-            {method:"DELETE",headers:{"x-user-id":String(userId)}}
-        )
+        const filesServiceUrl=process.env.FILE_SERVICE_URL || process.env.FILES_SERVICE_URL || "http://localhost:8003"
+        let filesResponse
+        try {
+            filesResponse=await fetchFilesService(
+                `${filesServiceUrl.replace(/\/+$/,"")}/project/${encodeURIComponent(id)}`,
+                {method:"DELETE",headers:{"x-user-id":String(userId)}}
+            )
+        } catch (error) {
+            console.error("Project file cleanup request failed", error)
+            return res.status(502).json({message:"Unable to reach the files service. Please try again."})
+        }
         if(!filesResponse.ok){
             console.error(`Project file cleanup failed with status ${filesResponse.status}`)
             return res.status(502).json({message:"Unable to delete project files. Please try again."})
