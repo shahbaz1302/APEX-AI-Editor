@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 import { io } from "socket.io-client";
 import { Eraser } from "lucide-react";
+import { reportWakeUpStatus } from "../utils/wakeUpRetry";
 
 const Terminal = ({ projectId, userId }) => {
   const containerRef = useRef();
@@ -61,6 +62,10 @@ const Terminal = ({ projectId, userId }) => {
 
     socket.on("connect", () => {
       setConnected(true);
+      reportWakeUpStatus({
+        status: "ready",
+        message: "Terminal connection restored.",
+      });
       fitTerminal();
       socket.emit("terminal:init", {
         projectId,
@@ -110,6 +115,10 @@ const Terminal = ({ projectId, userId }) => {
 
     socket.on("connect_error", (error) => {
       setConnected(false);
+      reportWakeUpStatus({
+        status: "warming",
+        message: "The terminal server is waking up. Reconnecting automatically...",
+      });
       terminal.write(`\r\n\x1b[31m${error.message}\x1b[0m\r\n`);
     });
 

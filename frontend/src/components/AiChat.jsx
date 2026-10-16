@@ -1,6 +1,7 @@
 import { Bot, FileMinus, FilePen, FilePlus2, FolderPlus, Loader2, Send, Sparkles, User } from "lucide-react"
 import { useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
+import { isTransientFetchFailure, retryWithWakeUp } from "../utils/wakeUpRetry"
 
 const TOOL_METADATA = {
     folder_created: { icon: FolderPlus, label: "Created Folder" },
@@ -29,7 +30,7 @@ const ToolBadge = ({ toolType, detail }) => {
     )
 }
 
-const AiChat = ({ projectId, history = [], reloadTree }) => {
+const AiChat = ({ projectId, reloadTree }) => {
     const [messages, setMessages] = useState([])
     const [message, setMessage] = useState([])
     const [loading, setLoading] = useState(false)
@@ -79,8 +80,7 @@ const AiChat = ({ projectId, history = [], reloadTree }) => {
             setMessages((prev) => [...prev, { role: "user", content: message }])
             let msg = message
             setMessage("")
-            history = messages
-            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/ai/chat`, {
+            const response = await retryWithWakeUp(() => fetch(`${import.meta.env.VITE_SERVER_URL}/api/ai/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -88,9 +88,9 @@ const AiChat = ({ projectId, history = [], reloadTree }) => {
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    projectId, message: msg, history
+                    projectId, message: msg, history: messages
                 })
-            })
+            }), isTransientFetchFailure)
 
             if (!response.ok) {
                 let msg = "AI request failed"

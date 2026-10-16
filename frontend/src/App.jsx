@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux"
 import { setUserData } from "./redux/userSlice"
 import ProjectPage from "./pages/ProjectPage"
 import Plan from "./pages/Plan"
+import ServerWakeUpBanner from "./components/ServerWakeUpBanner"
 
 const App = () => {
   const dispatch=useDispatch()
@@ -15,10 +16,11 @@ const App = () => {
       dispatch(setUserData(data))
     }
     fetch()
-  },[])
+  },[dispatch])
 
   return (
     <BrowserRouter>
+      <ServerWakeUpBanner />
       <Routes>
         <Route path="/" element={<Dashboard/>} />
         <Route path="/project/:id" element={<ProjectPage/>} />
