@@ -16,7 +16,7 @@ jobs:
         env:
           GATEWAY_URL: https://gateway-iknp.onrender.com/
           AUTH_URL: https://auth-service-fya3.onrender.com/
-          PROJECT_URL: https://project-service-mwej.onrender.com/
+          PROJECT_URL: https://project-service-mwej.onrender.com/health
           FILES_URL: https://files-service-cc1l.onrender.com/
           AI_URL: https://ai-service-z31q.onrender.com/
           TERMINAL_URL: https://terminal-service-07rg.onrender.com/health
