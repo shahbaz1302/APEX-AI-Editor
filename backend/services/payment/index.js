@@ -8,6 +8,14 @@ const port=process.env.PORT || 8006;
 
 const app=express();
 app.use(express.json())
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "payment-service",
+  });
+});
+
 app.use("/",router)
 app.get("/",(req,res)=>{
     return res.json({message:"Hello from payment service"})

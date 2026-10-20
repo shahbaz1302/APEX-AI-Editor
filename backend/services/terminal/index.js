@@ -199,7 +199,7 @@ io.on("connection", (socket) => {
 });
 
 app.get("/health", (req, res) => {
-  return res.json({ success: true, service: "terminal" });
+  return res.status(200).json({ status: "ok", service: "terminal-service" });
 });
 
 server.listen(port,"0.0.0.0", () => {
